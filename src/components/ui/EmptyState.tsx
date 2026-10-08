@@ -1,11 +1,12 @@
 import { Card } from '@/components/ui/Card'
+import type { ReactNode } from 'react'
 
 export function EmptyState({
   title,
   description,
 }: {
   title: string
-  description: string
+  description: ReactNode
 }) {
   return (
     <Card className="border-dashed bg-muted/40 px-6 py-16 text-center">
