@@ -19,5 +19,6 @@ export {
   createClaimWinningsOperation,
   createResolveMarketOperation,
   createCreateMarketOperation,
+  createDisputeMarketOperation,
 } from '@/lib/stellar/contracts'
 export type { MarketContract } from '@/lib/stellar/contracts'

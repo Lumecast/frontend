@@ -147,3 +147,18 @@ export function createCreateMarketOperation(
     nativeToScVal(category),
   )
 }
+
+export function createDisputeMarketOperation(
+  contractId: string,
+  disputer: string,
+  marketId: string,
+  counterBond: string,
+): xdr.Operation {
+  const contract = new Contract(contractId)
+  return contract.call(
+    'dispute_market',
+    toScAddress(disputer),
+    nativeToScVal(marketId),
+    toI128(counterBond),
+  )
+}

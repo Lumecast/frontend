@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useWallet } from '@/hooks/useWallet'
 import { useCreateMarket } from '@/hooks/useCreateMarket'
 import { useResolveMarket } from '@/hooks/useResolveMarket'
+import { useDisputeMarket } from '@/hooks/useDisputeMarket'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -200,20 +201,28 @@ function MarketCreationForm() {
 function ResolutionPanel() {
   const [marketId, setMarketId] = useState('')
   const [winningOutcome, setWinningOutcome] = useState(0)
-  const { executeResolve, isResolving, error } = useResolveMarket()
+  const [disputeMarketId, setDisputeMarketId] = useState('')
+  const [counterBond, setCounterBond] = useState('')
+  const { executeResolve, isResolving, error: resolveError } = useResolveMarket()
+  const { executeDispute, isDisputing, error: disputeError } = useDisputeMarket()
 
   const handleResolve = async (e: React.FormEvent) => {
     e.preventDefault()
     await executeResolve({ marketId, winningOutcomeIndex: winningOutcome })
   }
 
+  const handleDispute = async (e: React.FormEvent) => {
+    e.preventDefault()
+    await executeDispute({ marketId: disputeMarketId, counterBond })
+  }
+
   return (
     <Card className="p-5">
       <h2 className="text-lg font-semibold mb-4">Resolve Market</h2>
       <form onSubmit={handleResolve} className="space-y-4">
-        {error && (
+        {resolveError && (
           <div className="rounded-md bg-danger-500/10 p-3 text-sm text-danger-600" role="alert">
-            {error}
+            {resolveError}
           </div>
         )}
 
@@ -248,12 +257,41 @@ function ResolutionPanel() {
 
       <div className="mt-6 pt-6 border-t border-border">
         <h3 className="text-sm font-semibold mb-3">Dispute Resolution</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Dispute functionality requires a counter-bond stake. Implementation pending contract support.
-        </p>
-        <Button variant="outline" disabled className="w-full">
-          Open Dispute
-        </Button>
+        <form onSubmit={handleDispute} className="space-y-4">
+          {disputeError && (
+            <div className="rounded-md bg-danger-500/10 p-3 text-sm text-danger-600" role="alert">
+              {disputeError}
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Market ID</label>
+            <Input
+              value={disputeMarketId}
+              onChange={(e) => setDisputeMarketId(e.target.value)}
+              placeholder="market-123"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Counter Bond (USDC)</label>
+            <Input
+              type="number"
+              value={counterBond}
+              onChange={(e) => setCounterBond(e.target.value)}
+              placeholder="10000000"
+              min="1"
+              step="1"
+              required
+            />
+            <p className="text-xs text-muted-foreground mt-1">Amount in stroops (1 USDC = 10,000,000 stroops)</p>
+          </div>
+
+          <Button type="submit" variant="outline" disabled={isDisputing} className="w-full">
+            {isDisputing ? 'Submitting Dispute…' : 'Open Dispute'}
+          </Button>
+        </form>
       </div>
     </Card>
   )
